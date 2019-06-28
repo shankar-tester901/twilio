@@ -1,5 +1,15 @@
-# This will help folks build their own Twilio integration using the Zoho Developer CRM available from zoho.com/developers
-Twilio supports HTTPS only and that too it has issues if there are any redirects. So its best that your application is directly accessible online. Behind firewalls, it will have issues as most firewalls block UDP packets. That causes issues.
+# This will help folks build their own Twilio integration using the Zoho Developer CRM available from https://www.zoho.com/developer/
+
+Note: Twilio supports HTTPS only and that too it has issues if there are any redirects. So its best that your application is directly accessible online. Behind firewalls this solution will not work , it will have issues as most firewalls block UDP packets. You will then need to make 'holes' in your firewall ;-)
+
+Create your Twilio acct. Load some money ;-).
+Get a number with incoming and outgoing facility.
+Go to the Programmable Voice section.
+Create a TwiML App
+Set the Voice -> Request URL as the url that you will be exposing in the Widget  
+
+
+
 
 1. Set up the Widget inside the Vertical CRM 
 2. Pls replace the variable values as per your Twilio Account
