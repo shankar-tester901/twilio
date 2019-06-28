@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <!-- script src="ZohoEmbededAppSDK.min.js"></script -->
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.6/twilio.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+</head>
+
+
+<body bgcolor="#E6E6FA">
+    <script type="text/javascript">
+        var callStatus = $("#call-status");
+
+        var hangUpButton = $(".hangup-button");
+
+
+        $(function() {
+
+            // Store some selectors for elements we'll reuse
+            var callStatus = $("#call-status");
+
+            var callSupportButton = $(".call-support-button");
+            var hangUpButton = $(".hangup-button");
+
+
+            /* Helper function to update the call status bar */
+            function updateCallStatus(status) {
+                callStatus.text(status);
+            }
+
+            /* Get a Twilio Client token with an AJAX request */
+            $(document).ready(function() {
+                $.ajax('/token').done(function(token) {
+                    console.log('Got a token: ', token);
+                    // Set up the Twilio Client Device with the token
+                    Twilio.Device.setup(token, {
+                        debug: true,
+                        enableRingingState: true
+                    });
+                });
+
+            });
+
+            /* Callback to let us know Twilio Client is ready */
+            Twilio.Device.ready(function(device) {
+                updateCallStatus("Ready");
+            });
+
+            /* Report any errors to the call status display */
+            Twilio.Device.error(function(error) {
+                updateCallStatus("ERROR: " + error.message);
+            });
+
+            /* Callback for when Twilio Client initiates a new connection */
+            Twilio.Device.connect(function(connection) {
+                console.log(' in connect function ');
+                // Enable the hang up button and disable the call buttons
+                hangUpButton.prop("disabled", false);
+
+                callSupportButton.prop("disabled", true);
+
+
+
+                updateCallStatus("In call with support");
+
+
+            });
+
+            /* Callback for when a call ends */
+            Twilio.Device.disconnect(function(connection) {
+                console.log("Call Disconnected ......");
+                // Disable the hangup button and enable the call buttons
+                hangUpButton.prop("disabled", true);
+
+                callSupportButton.prop("disabled", false);
+
+                updateCallStatus("Ready");
+            });
+
+
+
+
+
+            /* Call the support_agent from the home page */
+            function callSupport() {
+                updateCallStatus("Calling support...");
+                Twilio.Device.connect({
+                    callerId: '<my-twilio-num>'
+                });
+            }
+
+            /* End a call */
+            function hangUp() {
+                Twilio.Device.disconnectAll();
+            }
+
+
+            // Connect a call to customer when button clicked
+            document.getElementById('call-support-button').onclick = function() {
+                console.log('CALLING SUPPORT  ...... ');
+                callSupport();
+            };
+
+            // Connect a call to customer when button clicked
+            document.getElementById('hangup-button').onclick = function() {
+                console.log('CALLING HANGUP  ...... ');
+                hangUp();
+            };
+
+
+        });
+    </script>
+
+
+    <p>
+        <button id='call-support-button' style="background-color:lightgreen" value='enabled'> Call Support </button>
+    </p>
+
+
+
+
+    <p>
+        <button id='hangup-button' class='hangup-button' style="background-color:rgb(204, 169, 125)" name='hangup-button' value='enabled'> Hang Up </button>
+
+        <div>
+            <b>Current Status :</b>
+            <p id='call-status'>
+            </p>
+        </div>
+    </p>
+</body>
+
+
+</html>

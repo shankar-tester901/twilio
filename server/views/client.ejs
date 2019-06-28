@@ -1,0 +1,288 @@
+<html>
+
+<head>
+    <!-- script src="ZohoEmbededAppSDK.min.js"></script -->
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.6/twilio.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <script type="text/javascript">
+        var mobile;
+        var leadid;
+        var callStatus = $("#call-status");
+        var answerButton = $(".answer-button");
+        var hangUpButton = $(".hangup-button");
+        $(function() {
+
+            console.log("loading SDK ...");
+            ZOHO.embeddedApp.init()
+                .then(ZOHO.CRM.INTERACTION.getPageInfo)
+                .then(function(response) {
+                    console.log("*************** here in add Leads getting the Lead Info from the page ");
+                    console.log(response);
+                    leadid = response.data['id'];
+                    console.log(leadid);
+                    lastname = response.data['Last_Name'];
+                    mobile = response.data['Mobile'];
+                    mobile = '<mobilewithis>';
+                    console.log('Mobile is ....', response.data['Mobile']);
+                    setFieldValues(lastname, mobile, leadid);
+
+                })
+
+
+
+            $.ajax('/token')
+                .done(function(token) {
+                    console.log('Got a token: ', token);
+
+                    // Twilio.Device.setup(token, {
+                    //     audioConstraints: {
+                    //         optional: [{
+                    //             googAutoGainControl: false
+                    //         }]
+                    //     }
+                    // })
+
+                    /* Callback for when Twilio Client receives a new incoming call */
+                    // Twilio.Device.incoming(function(connection) {
+
+                    //     console.log("in incoming");
+                    //     if ("phoneNumber" in connection.message) {
+                    //         const params = {
+                    //             // To: '<numberwithisd>'
+                    //             To: connection.message.phoneNumber
+                    //         };
+
+                    //         var connectionStatus = Twilio.Device.connect(params);
+                    //         // updateCallStatus("In call with " + connection.message.phoneNumber);
+                    //     }
+
+
+                    //     // // Set a callback on the answer button and enable it
+                    //     // answerButton.click(function() {
+                    //     //     connection.accept();
+                    //     // });
+                    //     // answerButton.prop("disabled", false);
+                    // });
+
+
+
+
+                    //      MediaStreamTrack.getSources(withSources);
+
+                    // function getSources(sourceInfos) {
+                    //     var constraints = {};
+
+                    //     sources.forEach(function(source) {
+                    //         if (source.kind === "audio" && source.label === "My Device") {
+                    //             constraints.optional = [{
+                    //                 sourceId: source.id
+                    //             }];
+                    //         }
+                    //     });
+
+                    //     Twilio.Device.connect(clientParams, constraints);
+                    // }
+                    /* Callback for when Twilio Client initiates a new connection */
+
+
+
+                    // Handle an incoming connection event
+                    Twilio.Device.on('incoming', function(conn) {
+                        // conn is a Twilio.Connection object
+                        console.log("INCOMING CALL .....", conn);
+                    });
+
+                    /* Report any errors to the call status display */
+                    Twilio.Device.error(function(error) {
+                        console.log("ERROR ", error.message);
+                        //   updateCallStatus("ERROR: " + error.message);
+                    });
+
+                    Twilio.Device.setup(token, {
+                        debug: true
+                            //  console.log(" In Device Setup .......");
+                    });
+
+                    Twilio.Device.ready(function(device) {
+                        self.log = 'Connected';
+                        console.log('Device is ready for action ------------');
+                        updateCallStatus("Ready");
+                    });
+
+                    //    Twilio.Device.audio.setInputDevice('default').then(function()
+                    //   {
+                    //    console.info('Success!');
+                    // });
+
+                    //  Twilio.Device.audio.speakerDevices.set('default');
+
+                    // Make an outbound call with the current number,
+                    // or hang up the current call
+                    // toggleCall: function() {
+                    //     if (!this.onPhone) {
+                    //         this.muted = false;
+                    //         this.onPhone = true;
+                    //         // make outbound call with current number
+                    //         var n = '+' + this.countryCode + this.currentNumber.replace(/\D/g, '');
+                    //         this.connection = Twilio.Device.connect({
+                    //             number: n
+                    //         });
+                    //         this.log = 'Calling ' + n;
+                    //     } else {
+                    //         // hang up call in progress
+                    //         Twilio.Device.disconnectAll();
+                    //     }
+                    // }
+
+                    // // Handle muting
+                    // toggleMute: function() {
+                    //     this.muted = !this.muted;
+                    //     Twilio.Device.activeConnection().mute(this.muted);
+                    // }
+
+                    // // Handle numeric buttons
+                    // sendDigit: function(digit) {
+                    //     this.connection.sendDigits(digit);
+                    // }
+                    /* Callback for when Twilio Client initiates a new connection */
+                    Twilio.Device.connect(function(connection) {
+                        // Enable the hang up button and disable the call buttons
+                        //    hangUpButton.prop("disabled", false);
+                        //  callCustomerButtons.prop("disabled", true);
+                        //callSupportButton.prop("disabled", true);
+                        answerButton.prop("disabled", true);
+
+                        // If phoneNumber is part of the connection, this is a call from a
+                        // support agent to a customer's phone
+                        if ("phoneNumber" in connection.message) {
+                            updateCallStatus("In call with " + connection.message.phoneNumber);
+                        } else {
+                            // This is a call from a website user to a support agent
+                            updateCallStatus("In call with support");
+                        }
+                    });
+
+                    /* Callback for when Twilio Client receives a new incoming call */
+                    Twilio.Device.incoming(function(connection) {
+                        updateCallStatus("Incoming support call");
+
+                        // Set a callback to be executed when the connection is accepted
+                        connection.accept(function() {
+                            updateCallStatus("In call with customer");
+                        });
+
+                        // Set a callback on the answer button and enable it
+                        answerButton.click(function() {
+                            connection.accept();
+                        });
+                        answerButton.prop("disabled", false);
+                    });
+
+                    Twilio.Device.error(function(error) {
+                        console.log('Error: ' + error.message);
+                    });
+
+                    // Register an event handler for when a call ends for any reason
+                    Twilio.Device.disconnect(function(connection) {
+                        //     alert('Call disconnected');
+                        console.log("----------call disconnected");
+                    });
+
+
+
+                })
+                .fail(function() {
+                    alert('Could not authenticate!');
+                });
+
+
+
+            // Connect a call to customer when button clicked
+            document.getElementById('button-call').onclick = function() {
+
+                console.log('CALLING CUSTOMER  ...... ');
+                const params = {
+                    // To: '<numberwithisd>'
+                    To: $('#to_call').val()
+                };
+
+                console.log('Calling customer number   ---> ' + params.To + '...');
+
+                var connectionStatus = Twilio.Device.connect(params);
+                //   var connectionStatus = Twilio.Device.connect(params);
+                console.log("Connection Status is .........", connectionStatus);
+            };
+
+
+            // Connect a call to Support
+            document.getElementById('call-support').onclick = function() {
+                console.log('CALLING HELPLINE ...... ');
+
+                const params = {
+                    // To: '<numberwithis>'
+                    To: '<my-twilio-num>'
+                };
+
+                console.log('Calling helpline number  ' + params.To + '...');
+
+                var connectionStatus = Twilio.Device.connect(params);
+                //   var connectionStatus = Twilio.Device.connect(params);
+                console.log("Connection Status is .........", connectionStatus);
+            };
+
+
+
+
+
+            // Connect a call when button clicked
+            document.getElementById('button-hangup').onclick = function() {
+                // alert('hangup clicked')
+                console.log('Hanging up...');
+                Twilio.Device.disconnectAll();
+            };
+
+
+
+        });
+
+        function setFieldValues(lastname, mobile, leadid) {
+            console.log("__________set field values ______");
+            $('#To').attr('value', mobile);
+            $('#leadid').attr('value', leadid);
+        }
+
+
+        /* Helper function to update the call status bar */
+        function updateCallStatus(status) {
+            callStatus.text(status);
+        }
+    </script>
+
+    <input type="text" name="To" id="to_call" value="<numberwithis>"></input>
+
+    <button id='button-call'> Call Customer </button> |
+
+    <button id='button-hangup'> Hang Up </button> SMILE
+
+    <p>
+        <button id='call-support'> Call Support </button> |
+        <button id='hangup-button'> Call Hang Up </button> |
+
+        <p>
+
+            <button id='answer-button'> Answer </button>
+            <input type="text" id='call-status'> Call Status </button>
+        </p>
+
+
+
+
+
+    </p>
+</body>
+
+</html>

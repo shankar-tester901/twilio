@@ -1,0 +1,83 @@
+<html> 
+ <head> 
+<script type = "text/javascript" src = "//media.twiliocdn.com/sdk/js/client/v1.3/twilio.min.js"></script>
+<script type = "text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+ </head >
+ 
+  <body>
+   <script type="text/javascript"> 
+
+        $(function () 
+        {
+          $.ajax('/token')
+          .done(function (token) {
+          console.log('Got a token: ', token); 
+
+          Twilio.Device.setup(token); 
+
+          Twilio.Device.ready(function (device) 
+          {
+            console.log('Ready'); 
+          }); 
+
+      //    Twilio.Device.audio.setInputDevice('default').then(function()
+        //   {
+          //    console.info('Success!');
+          // });
+
+//  Twilio.Device.audio.speakerDevices.set('default');
+  
+          Twilio.Device.error(function (error)
+           {
+              console.log('Error: ' + error.message); 
+          }); 
+
+          // Register an event handler for when a call ends for any reason
+        Twilio.Device.disconnect(function(connection) {
+            alert('Call disconnected');
+        });
+
+        })
+          .fail(function () 
+          {
+              alert('Could not authenticate!'); 
+          }); 
+
+      
+
+// Connect a call when button clicked
+document.getElementById('button-call').onclick = function() {
+// get the phone number to connect the call to
+//alert('call clicked');  
+  const params = { To: '<number with isd' };
+
+  console.log('Calling ' + params.To + '...');
+  Twilio.Device.connect(params);
+};  
+
+
+// Connect a call when button clicked
+document.getElementById('button-hangup').onclick = function() {
+ // alert('hangup clicked')
+  console.log('Hanging up...');
+  Twilio.Device.disconnectAll();
+};
+
+  }); 
+</script> 
+<form method="POST" action="/voice">
+<input type="text" name="To" value="<numberwithis"></input>
+</form>
+
+<button id='button-call'> Call </button> |
+
+<button id='button-hangup'> Hang Up </button> 
+
+
+
+ </body>
+ 
+ </html >
+
+
