@@ -7,7 +7,11 @@ Get a number with incoming and outgoing facility.
 Go to the Programmable Voice section.
 Create a TwiML App
 Set the Voice -> Request URL as the url that you will be exposing in the Widget  
+<img src="images/Screenshot%202019-06-28%20at%204.44.57%20PM.png" width="550" height="350">
 
+
+Go to the Number that you have purchased and configure it similarly
+<img src="images/Screenshot%202019-06-28%20at%204.58.37%20PM.png" width="550" height="350">
 
 
 
