@@ -2,15 +2,15 @@
 
 Note: Twilio supports HTTPS only and that too it has issues if there are any redirects. So its best that your application is directly accessible online. Behind firewalls this solution will not work , it will have issues as most firewalls block UDP packets. You will then need to make 'holes' in your firewall ;-)
 
-A. Create your Twilio acct. Load some money ;-).
-B. Get a number with incoming and outgoing facility.
-C. Go to the Programmable Voice section.
-D. Create a TwiML App
-E. Set the Voice -> Request URL as the url that you will be exposing in the Widget  
+1. Create your Twilio acct. Load some money ;-).
+2. Get a number with incoming and outgoing facility.
+3. Go to the Programmable Voice section.
+4. Create a TwiML App
+5. Set the Voice -> Request URL as the url that you will be exposing in the Widget  
 <img src="images/Screenshot%202019-06-28%20at%204.44.57%20PM.png" width="550" height="350">
 
 
-F. Go to the Number that you have purchased and configure it similarly
+6. Go to the Number that you have purchased and configure it similarly
 <img src="images/Screenshot%202019-06-28%20at%204.58.37%20PM.png" width="550" height="350">
 
 
